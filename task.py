@@ -1,25 +1,30 @@
 from datetime import datetime
 
+from flask import make_response, abort
+
 def get_timestamp():
     return datetime.now().strftime(("%d-%m-%Y %H:%M:%S"))
 
 # Data to serve with our API
 TASKS = {
     "tarefa1": {
+        "task_id" : "tarefa1",
         "tname": "lavar roupa",
-        "tgoup": "Casa",
+        "tgroup": "Casa",
         "tdate": "10-02-2019",
         "timestamp": get_timestamp()
     },
     "tarefa2": {
+        "task_id" : "tarefa2",
         "tname": "API + WebApp deployed",
-        "tgoup": "Oportunidades",
+        "tgroup": "Oportunidades",
         "tdate": "10-02-2019",
         "timestamp": get_timestamp()
     },
     "tarefa3": {
+        "task_id" : "tarefa3",
         "tname": "Pegadinha no dia 01/04",
-        "tgoup": "Brincadeira",
+        "tgroup": "Brincadeira",
         "tdate": "01-04-2019",
         "timestamp": get_timestamp()
     }
@@ -35,3 +40,36 @@ def read():
     """
     # Create the list of tasks from our data
     return [TASKS[key] for key in sorted(TASKS.keys())]
+
+def create(task):
+    """
+    This function creates a new task in the tasks structure
+    based on the passed in task data
+    :param task:  person to create in tasks structure
+    :return:        201 on success, 406 on exists
+    """
+    task_id = task.get("task_id", None)
+    tname = task.get("tname", None)
+    tgroup = task.get("tgroup",None)
+    tdate = task.get("tdate", None)
+
+    # Does the person exist already?
+    if task_id not in TASKS and task_id is not None:
+        TASKS[task_id] = {
+            "task_id": task_id,
+            "tname": tname,
+            "tgroup": tgroup,
+            "tdate": tdate,
+            "timestamp": get_timestamp(),
+        }
+        return make_response(
+            "{task_id} successfully created".format(task_id=task_id), 201
+        )
+
+    # Otherwise, they exist, that's an error
+    else:
+        abort(
+            406,
+            "Error, task id {task_id} already exists".format(task_id=task_id),
+        )
+
