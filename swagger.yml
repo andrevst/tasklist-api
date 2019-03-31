@@ -26,13 +26,15 @@ paths:
             type: "array"
             items:
               properties:
-                taskid:
+                task_id:
                   type: "string"
                 tname:
                   type: "string"
                 tgroup:
                   type: "string"
                 tdate:
+                  type: "string"
+                done_flag:
                   type: "string"
                 timestamp:
                   type: "string"
@@ -57,6 +59,8 @@ paths:
               tgroup:
                 type: "string"
               tdate:
+                type: "string"
+              done_flag:
                 type: "string"
       responses:
         201:

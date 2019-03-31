@@ -5,13 +5,14 @@ from flask import make_response, abort
 def get_timestamp():
     return datetime.now().strftime(("%d-%m-%Y %H:%M:%S"))
 
-# Data to serve with our API
+# Data Mockup to serve with our API
 TASKS = {
     "tarefa1": {
         "task_id" : "tarefa1",
         "tname": "lavar roupa",
         "tgroup": "Casa",
         "tdate": "10-02-2019",
+        "done_flag": "y",
         "timestamp": get_timestamp()
     },
     "tarefa2": {
@@ -19,6 +20,7 @@ TASKS = {
         "tname": "API + WebApp deployed",
         "tgroup": "Oportunidades",
         "tdate": "10-02-2019",
+        "done_flag": "n",
         "timestamp": get_timestamp()
     },
     "tarefa3": {
@@ -26,6 +28,7 @@ TASKS = {
         "tname": "Pegadinha no dia 01/04",
         "tgroup": "Brincadeira",
         "tdate": "01-04-2019",
+        "done_flag": "n",
         "timestamp": get_timestamp()
     }
 }
@@ -52,21 +55,24 @@ def create(task):
     tname = task.get("tname", None)
     tgroup = task.get("tgroup",None)
     tdate = task.get("tdate", None)
+    doneflag = "n" 
+    # user cannot create a done task
 
-    # Does the person exist already?
+    # Does the task exist already?
     if task_id not in TASKS and task_id is not None:
         TASKS[task_id] = {
             "task_id": task_id,
             "tname": tname,
             "tgroup": tgroup,
             "tdate": tdate,
+            "done_flag": doneflag,
             "timestamp": get_timestamp(),
         }
         return make_response(
             "{task_id} successfully created".format(task_id=task_id), 201
         )
 
-    # Otherwise, they exist, that's an error
+    # Otherwise, it exists, that's an error
     else:
         abort(
             406,
