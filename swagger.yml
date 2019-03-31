@@ -62,6 +62,40 @@ paths:
                 type: "string"
               done_flag:
                 type: "string"
+              timestamp:
+                type: "string"
+                description: Creation/Update timestamp
       responses:
         201:
-          description: Successfully created in list
+          description: "Successfully created in list"
+
+  /task/{task_id}:
+    get:
+      operationId: "task.read_a_task"
+      tags:
+        - "task"
+      summary: "The task data structure supported by the server application"
+      description: "Read the list of tasks"
+      parameters:
+        - name: task_id
+          in: path
+          description: unique identifier of a task
+          type: string
+          required: True
+      responses:
+        200:
+            description: "Successful read task list operation"
+            schema:
+                properties:
+                  tname:
+                    type: "string"
+                  tgroup:
+                    type: "string"
+                  tdate:
+                    type: "string"
+                  done_flag:
+                    type: "string"
+                  timestamp:
+                    type: "string"
+                    description: Creation/Update timestamp
+                    

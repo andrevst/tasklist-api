@@ -48,7 +48,7 @@ def create(task):
     """
     This function creates a new task in the tasks structure
     based on the passed in task data
-    :param task:  person to create in tasks structure
+    :param task:  task (to do item) to create in tasks structure
     :return:        201 on success, 406 on exists
     """
     task_id = task.get("task_id", None)
@@ -78,4 +78,23 @@ def create(task):
             406,
             "Error, task id {task_id} already exists".format(task_id=task_id),
         )
+
+def read_a_task(task_id):
+    """
+    This function responds to a request for /api/task/{task_id}
+    with one matching task from TASKS
+    :param task_id:   unique identifier of a task
+    :return:        task matching task_id
+    """
+    # Does the task exist in tasks?
+    if task_id in TASKS:
+        task = TASKS.get(task_id)
+
+    # otherwise, nope, not found
+    else:
+        abort(
+            404, "Task {task_id} not found".format(task_id=task_id)
+        )
+
+    return task
 
