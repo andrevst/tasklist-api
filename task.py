@@ -98,3 +98,23 @@ def read_a_task(task_id):
 
     return task
 
+def update(task_id, task):
+    """
+    This function updates the status of an existing  in the task in the structure
+    :param task_id:   unique identifier of a task
+    :param task: unique task to update
+    :return:        updated status at task structure
+    """
+    # Does the task exist in tasks?
+    if task_id in TASKS:
+        TASKS[task_id]["done_flag"] = task.get("done_flag")
+        TASKS[task_id]["timestamp"] = get_timestamp()
+
+        return TASKS[task_id]
+
+    # otherwise, nope, that's an error
+    else:
+        abort(
+            404, "Task {task_id} not found".format(task_id=task_id)
+        )
+

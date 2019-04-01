@@ -15,7 +15,7 @@ This API provides data for an application based on the following mockup:
 
 ## Used Technologies:
 
- - Python 3.7.2
+ - Python 3.6
    - Flask 
    - Connexion
    -  SQLAlchemy

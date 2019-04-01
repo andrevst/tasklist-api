@@ -99,3 +99,38 @@ paths:
                     type: "string"
                     description: Creation/Update timestamp
                     
+    put:
+      operationId: task.update
+      tags:
+        - "task"
+      summary: "Update the status of a task in the tasks list"
+      description: "Update a task status in the tasks list"
+      parameters:
+        - name: task_id
+          in: path
+          description: task to update status
+          type: string
+          required: True
+        - name: task
+          in: body
+          description: updated status
+          schema:
+            type: object
+            properties:
+              # tname:
+              #   type: "string"
+              # tgroup:
+              #   type: "string"
+              # tdate:
+              #   type: "string"
+              done_flag:
+                type: "string"
+              # timestamp:
+              #   type: "string"
+              timestamp:
+                type: "string"
+                description: Creation/Update timestamp
+      responses:
+        200:
+          description: "Successfully updated task status in tasks list"
+
