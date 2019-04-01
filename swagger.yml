@@ -52,19 +52,20 @@ paths:
           schema:
             type: object
             properties:
-              task_id:
-                type: "string"
               tname:
                   type: "string"
               tgroup:
                 type: "string"
               tdate:
                 type: "string"
-              done_flag:
-                type: "string"
-              timestamp:
-                type: "string"
+                format: date-time
                 description: Creation/Update timestamp
+              done_flag: 
+                type: "string"
+                default: "n"
+                pattern: '[n]'
+                #  user cannot create a done task so it is treated at swagger
+                
       responses:
         201:
           description: "Successfully created in list"
@@ -80,7 +81,7 @@ paths:
         - name: task_id
           in: path
           description: unique identifier of a task
-          type: string
+          type: integer
           required: True
       responses:
         200:
@@ -97,8 +98,7 @@ paths:
                     type: "string"
                   timestamp:
                     type: "string"
-                    description: Creation/Update timestamp
-                    
+                    description: Creation/Update timestamp                 
     put:
       operationId: task.update
       tags:
@@ -108,31 +108,46 @@ paths:
       parameters:
         - name: task_id
           in: path
-          description: task to update status
-          type: string
+          description: task to update data
+          type: integer
           required: True
         - name: task
           in: body
-          description: updated status
+          description: updated data
           schema:
             type: object
             properties:
-              # tname:
-              #   type: "string"
-              # tgroup:
-              #   type: "string"
-              # tdate:
-              #   type: "string"
+              tname:
+                type: "string"
+              tgroup:
+                type: "string"
+              tdate:
+                type: "string"
+                format: date-time
               done_flag:
                 type: "string"
-              # timestamp:
-              #   type: "string"
-              timestamp:
-                type: "string"
+                default: "n"
+                pattern: '[n|y]'
                 description: Creation/Update timestamp
       responses:
         200:
           description: "Successfully updated task status in tasks list"
+          schema:
+            properties:
+              task_id:
+                type: integer
+                description: Id of the task in the database
+              tname:
+                type: "string"
+              tgroup:
+                type: "string"
+              tdate:
+                type: "string"
+              done_flag:
+                type: "string"
+              timestamp:
+                type: "string"
+                description: Creation/Update timestamp
 
     delete:
       operationId: task.delete

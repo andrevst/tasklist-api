@@ -2,36 +2,12 @@ from datetime import datetime
 
 from flask import make_response, abort
 
+from config import db
+from models import (TaskList, TaskListSchema)
+
 def get_timestamp():
     return datetime.now().strftime(("%d-%m-%Y %H:%M:%S"))
 
-# Data Mockup to serve with our API
-TASKS = {
-    "tarefa1": {
-        "task_id" : "tarefa1",
-        "tname": "lavar roupa",
-        "tgroup": "Casa",
-        "tdate": "10-02-2019",
-        "done_flag": "y",
-        "timestamp": get_timestamp()
-    },
-    "tarefa2": {
-        "task_id" : "tarefa2",
-        "tname": "API + WebApp deployed",
-        "tgroup": "Oportunidades",
-        "tdate": "10-02-2019",
-        "done_flag": "n",
-        "timestamp": get_timestamp()
-    },
-    "tarefa3": {
-        "task_id" : "tarefa3",
-        "tname": "Pegadinha no dia 01/04",
-        "tgroup": "Brincadeira",
-        "tdate": "01-04-2019",
-        "done_flag": "n",
-        "timestamp": get_timestamp()
-    }
-}
 
 # Create a handler for our read (GET) task
 def read():
@@ -42,96 +18,116 @@ def read():
     :return:        sorted list of tasks
     """
     # Create the list of tasks from our data
-    return [TASKS[key] for key in sorted(TASKS.keys())]
+    tasks = TaskList.query.all()
+
+    # Serialize the data for the response
+    schema = TaskListSchema(many=True)
+    data = schema.dump(tasks).data
+    return data
 
 def create(task):
     """
     This function creates a new task in the tasks structure
     based on the passed in task data
     :param task:  task (to do item) to create in tasks structure
-    :return:        201 on success, 406 on exists
+    :return:        201 on success, 406 if task name is empty
     """
-    task_id = task.get("task_id", None)
-    tname = task.get("tname", None)
-    tgroup = task.get("tgroup",None)
-    tdate = task.get("tdate", None)
-    doneflag = "n" 
-    # user cannot create a done task
+    tname = task.get("tname")
+    # user cannot create task without name
 
-    # Does the task exist already?
-    if task_id not in TASKS and task_id is not None:
-        TASKS[task_id] = {
-            "task_id": task_id,
-            "tname": tname,
-            "tgroup": tgroup,
-            "tdate": tdate,
-            "done_flag": doneflag,
-            "timestamp": get_timestamp(),
-        }
-        return make_response(
-            "{task_id} successfully created".format(task_id=task_id), 201
-        )
+    # Does the new task have a name? If no we can't insert it.
+    # Can we insert it?
+    if tname is not None:
 
-    # Otherwise, it exists, that's an error
+        # Create a person instance using the schema and the passed in person
+        schema = TaskListSchema()
+        print(task)
+        new_task = schema.load(task, session=db.session).data
+
+        # Add the person to the database
+        db.session.add(new_task)
+        db.session.commit()
+
+        # Serialize and return the newly created person in the response
+        data = schema.dump(new_task).data
+
+        return data, 201
+
+    # Otherwise, nope, person exists already
     else:
-        abort(
-            406,
-            "Error, task id {task_id} already exists".format(task_id=task_id),
-        )
+        abort(409, "Task needs a name".format(tname=tname),)
 
 def read_a_task(task_id):
-    """
-    This function responds to a request for /api/task/{task_id}
-    with one matching task from TASKS
-    :param task_id:   unique identifier of a task
-    :return:        task matching task_id
-    """
-    # Does the task exist in tasks?
-    if task_id in TASKS:
-        task = TASKS.get(task_id)
+    task = TaskList.query.filter(TaskList.task_id == task_id).one_or_none()
 
-    # otherwise, nope, not found
+    # Check if it find a task
+    if task is not None:
+
+        # Serialize the data for the response
+        schema = TaskListSchema()
+        data = schema.dump(task).data
+        return data
+
+    # Otherwise, no, didn't find that task
     else:
         abort(
-            404, "Task {task_id} not found".format(task_id=task_id)
+            404,
+            "Task {task_id} not found".format(task_id=task_id),
         )
-
-    return task
 
 def update(task_id, task):
     """
-    This function updates the status of an existing  in the task in the structure
+    This function updates the status of an existing in the task in the structure
     :param task_id:   unique identifier of a task
     :param task: unique task to update
     :return:        updated status at task structure
     """
-    # Does the task exist in tasks?
-    if task_id in TASKS:
-        TASKS[task_id]["done_flag"] = task.get("done_flag")
-        TASKS[task_id]["timestamp"] = get_timestamp()
+   # Get the task requested from the db into session
+    update_task = TaskList.query.filter(TaskList.task_id == task_id).one_or_none()
 
-        return TASKS[task_id]
+    # Did we find the task?
+    if update_task is not None: 
 
+        # turn the passed in task into a db object
+        schema = TaskListSchema()
+        update = schema.load(task, session=db.session).data
+        print(update)
+
+        # Set the id to the task we want to update
+        update.task_id = update_task.task_id
+
+        # merge the new object into the old and commit it to the db
+        db.session.merge(update)
+        db.session.commit()
+
+        # return updated task in the response
+        data = schema.dump(update_task).data
+
+        return data, 200
     # otherwise, nope, that's an error
     else:
         abort(
-            404, "Task {task_id} not found".format(task_id=task_id)
+            404, "Task {task_id} not found".format(task_id=task_id),
         )
 
 def delete(task_id):
     """
-    This function deletes a person from the tasks structure
+    This function deletes a task from the tasks structure
     :param task_id:   unique identifier of a task
     :return:        200 on successful delete, 404 if not found
     """
-    # Does the person to delete exist?
-    if task_id in TASKS:
-        del TASKS[task_id]
+    # Get the task requested from the db into session
+    delete_task = TaskList.query.filter(TaskList.task_id == task_id).one_or_none()
+
+    # Did we find the task?
+    if delete_task is not None: 
+        db.session.delete(delete_task)
+        db.session.commit()
         return make_response(
-            "{task_id} successfully deleted".format(task_id=task_id), 200
+            "Task {task_id} deleted".format(task_id=task_id), 200
         )
 
-    # Otherwise, nope, person to delete not found
+    # Otherwise, nope, task to delete not found
     else:
         abort(
             404, "Task {task_id} not found".format(task_id=task_id)
