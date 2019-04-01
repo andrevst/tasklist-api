@@ -134,3 +134,18 @@ paths:
         200:
           description: "Successfully updated task status in tasks list"
 
+    delete:
+      operationId: task.delete
+      tags:
+        - task
+      summary: Delete a task from the tasks list
+      description: Delete a task
+      parameters:
+        - name: task_id
+          in: path
+          type: string
+          required: True
+      responses:
+        200:
+          description: Successfully deleted a task from tasks list
+

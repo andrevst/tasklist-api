@@ -118,3 +118,21 @@ def update(task_id, task):
             404, "Task {task_id} not found".format(task_id=task_id)
         )
 
+def delete(task_id):
+    """
+    This function deletes a person from the tasks structure
+    :param task_id:   unique identifier of a task
+    :return:        200 on successful delete, 404 if not found
+    """
+    # Does the person to delete exist?
+    if task_id in TASKS:
+        del TASKS[task_id]
+        return make_response(
+            "{task_id} successfully deleted".format(task_id=task_id), 200
+        )
+
+    # Otherwise, nope, person to delete not found
+    else:
+        abort(
+            404, "Task {task_id} not found".format(task_id=task_id)
+        )
