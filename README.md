@@ -19,6 +19,7 @@ This API provides data for an application based on the following mockup:
    - Flask 
    - Connexion
    -  SQLAlchemy
-   -   Marshmallow
+   -   Marshmallow 
+  -   flask-cors library to set CORS(Cross-origin resource sharing) headers
  - Swagger
  - SQLite 3
