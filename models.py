@@ -6,7 +6,7 @@ class TaskList(db.Model):
     task_id = db.Column(db.Integer, primary_key=True)
     tgroup = db.Column(db.String(32))
     tname = db.Column(db.String(128), index=True)
-    tdate = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    tdate = db.Column(db.Date)
     done_flag = db.Column(db.String(1))
     timestamp = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
